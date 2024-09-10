@@ -5,8 +5,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { dbOptions } from './dataSource.options';
 import { TaskModule } from './task/task.module';
-import { APP_FILTER } from '@nestjs/core';
-import { HttpExceptionFilter } from './http.exceptionFilter';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { HttpExceptionFilter } from './exceptionFilters/http.exceptionFilter';
+import { HttpInterceptor } from './interceptors/http.interceptor';
 
 @Module({
   imports: [
@@ -23,6 +24,10 @@ import { HttpExceptionFilter } from './http.exceptionFilter';
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpInterceptor
+    },
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter
