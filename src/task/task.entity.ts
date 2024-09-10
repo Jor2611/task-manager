@@ -5,11 +5,13 @@ import { TaskPriority, TaskState } from "./constants/enums";
 export class Task {
   @PrimaryGeneratedColumn()
   id: number;
+
   @Column()
   title: string;
 
   @Column()
   description: string;
+  
   @Column({
     type: 'enum',
     enum: TaskPriority,

@@ -5,7 +5,7 @@ export enum TaskState {
 }
 
 export enum TaskPriority {
-  LOW = 'Low',
-  MEDIUM = 'Medium',
-  HIGH = 'High'
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high'
 }
