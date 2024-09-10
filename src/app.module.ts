@@ -5,6 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { dbOptions } from './dataSource.options';
 import { TaskModule } from './task/task.module';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './http.exceptionFilter';
 
 @Module({
   imports: [
@@ -19,6 +21,12 @@ import { TaskModule } from './task/task.module';
     TaskModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter
+    }
+  ],
 })
 export class AppModule {}
