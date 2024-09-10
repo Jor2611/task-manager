@@ -1,6 +1,7 @@
 import { ICreateTask } from "../../src/task/constants/interfaces";
 import { TaskState } from "../../src/task/constants/enums";
 import { Task } from "../../src/task/task.entity";
+import { NotFoundException } from "@nestjs/common";
 
 export class TaskServiceMock {
   private _tasks: Task[] = [];
@@ -25,6 +26,12 @@ export class TaskServiceMock {
       done_at: null
     } as Task;
     this._tasks.push(task);
+    return task;
+  }
+
+  async read(id: number){
+    const task = this._tasks.find((_task: Task) => _task.id === id);
+    if(!task) throw new NotFoundException('TASK_NOT_FOUND');
     return task;
   }
 

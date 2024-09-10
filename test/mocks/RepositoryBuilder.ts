@@ -117,9 +117,10 @@ export class RepositoryMock<T extends AppEntities> implements IRepositoryMock {
           Object.assign(collection[entityIndex], { ...entityData, updatedAt: processDate });
           return collection[entityIndex];
         } else {
-          const newGame = { id: Math.floor(Math.random() * 10000) + 31, ...entityData, createdAt: processDate, updatedAt: processDate };
-          collection.push(newGame);
-          return newGame;
+          const generatedId = collection.length ? collection[collection.length - 1]['id'] + 1 : 1;
+          const newRow = { id: generatedId, ...entityData, createdAt: processDate, updatedAt: processDate };
+          collection.push(newRow);
+          return newRow;
         }
       })
     }
@@ -166,10 +167,11 @@ export class RepositoryMock<T extends AppEntities> implements IRepositoryMock {
           Object.assign(this.collection[entityIndex], { ...entityData, updatedAt: processDate });
           return this.collection[entityIndex];
         } else {
-          const newGame = { id: Math.floor(Math.random() * 10000), ...entityData, createdAt: processDate, updatedAt: processDate };
+          const generatedId = this.collection.length ? this.collection[this.collection.length - 1]['id'] + 1 : 1;
+          const newRow = { id: generatedId, ...entityData, createdAt: processDate, updatedAt: processDate };
           const entityCollection = this.collections[collectionMap.get(this.entityTarget)] as T[]
-          entityCollection.push(newGame);
-          return newGame;
+          entityCollection.push(newRow);
+          return newRow;
         }
       }),
       remove:  jest.fn().mockImplementation(async(entity: T): Promise<T> => {

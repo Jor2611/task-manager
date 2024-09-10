@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
@@ -70,5 +71,37 @@ describe('TaskController', () => {
       priority,
       assigned_to: assign_to
     });
+  });
+
+  it('should return a task with provided id', async() => {
+    const spyOnRead = jest.spyOn(service, 'read');
+    const createTaskDto = { title, description, priority, assign_to }; 
+
+    const { data: createdTask } = await controller.create(createTaskDto);
+    const result = await controller.read(createdTask.id);
+
+    expect(spyOnRead).toHaveBeenCalledWith(createdTask.id);
+    expect(result.msg).toEqual('TASK_FETCHED');
+    expect(result.data).toBeDefined();
+    expect(result.data.id).toBeDefined();
+    expect(result.data).toMatchObject({
+      id: createdTask.id,
+      title,
+      description,
+      priority,
+      assigned_to: assign_to
+    });
+  });
+
+  it('should throw NotFound Exception when attempting to fetch with non-existing id', async() => {
+    const spyOnRead = jest.spyOn(service, 'read');
+    const createTaskDto = { title, description, priority, assign_to }; 
+    
+    const { data: createdTask } = await controller.create(createTaskDto);
+    const collection = serviceMock.tasks;
+    await expect(controller.read(createdTask.id+1)).rejects.toThrow(NotFoundException);
+
+    expect(spyOnRead).toHaveBeenCalledWith(createdTask.id+1);
+    expect(collection).toHaveLength(1);
   });
 });
