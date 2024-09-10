@@ -15,7 +15,7 @@ switch(process.env.NODE_ENV){
       username: process.env.PG_USERNAME,
       password: process.env.PG_PASSWORD,
       migrations: [join(__dirname, '..', 'migrations/*.js')],
-      entities: [join(__dirname, '..', '*/**.entity.js')],
+      entities: [join(__dirname, '..', '**/*.entity.js')],
       synchronize: true,
       migrationsRun: false
     };
@@ -30,7 +30,7 @@ switch(process.env.NODE_ENV){
       username: process.env.PG_USERNAME,
       password: process.env.PG_PASSWORD,
       migrations: [join(__dirname, '..', 'migrations/*.js')],
-      entities: [join(__dirname, '..', '*/**.entity.ts')],
+      entities: [join(__dirname, '..', '**/*.entity.ts')],
       synchronize: false,
       migrationsRun: true
     };
@@ -45,7 +45,7 @@ switch(process.env.NODE_ENV){
       username: process.env.PG_USERNAME,
       password: process.env.PG_PASSWORD,
       migrations: [join(__dirname, '..', 'migrations/*.js')],
-      entities: [join(__dirname, '..', '*/**.entity.js')],
+      entities: [join(__dirname, '..', '**/*.entity.js')],
       synchronize: false,
       migrationsRun: true,
       ssl: {
