@@ -5,29 +5,28 @@ import { TaskPriority, TaskState } from "./constants/enums";
 export class Task {
   @PrimaryGeneratedColumn()
   id: number;
-
+//Add min max lengths
   @Column()
   title: string;
 
   @Column()
   description: string;
-  
+
   @Column({
     type: 'enum',
-    enum: TaskPriority,
-    default: TaskPriority.MEDIUM
+    enum: TaskPriority
   })
   priority: TaskPriority;
 
   @Column({
     type: 'enum',
     enum: TaskState,
-    default: TaskState.INITIAL
+    default: TaskState.TODO
   })
   state: TaskState;
 
-  @Column()
-  member_id: number;
+  @Column({ nullable: true })
+  assigned_to: string;
 
   @CreateDateColumn()
   created_at: Date;

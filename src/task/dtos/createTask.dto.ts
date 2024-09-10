@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { IsString, IsEnum } from 'class-validator';
+import { IsString, IsEnum, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { TaskPriority } from '../constants/enums';
 
@@ -16,4 +16,8 @@ export class CreateTaskDto {
     return value.toLowerCase();
   })
   priority: TaskPriority;
+
+  @IsString()
+  @IsOptional()
+  assign_to?: string;
 }
