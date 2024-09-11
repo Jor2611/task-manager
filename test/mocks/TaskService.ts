@@ -1,4 +1,4 @@
-import { ICreateTask } from "../../src/task/constants/interfaces";
+import { ICreateTask, ITaskFilter } from "../../src/task/constants/interfaces";
 import { TaskState } from "../../src/task/constants/enums";
 import { Task } from "../../src/task/task.entity";
 import { NotFoundException } from "@nestjs/common";
@@ -33,6 +33,27 @@ export class TaskServiceMock {
     const task = this._tasks.find((_task: Task) => _task.id === id);
     if(!task) throw new NotFoundException('TASK_NOT_FOUND');
     return task;
+  }
+
+  //Doesn't make sense to add filters functionlities
+  async filter(data: ITaskFilter){
+    if(!this._tasks.length) return this.tasks;
+
+    const { page, limit, sortBy, sortOrder } = data;
+    let skipTasks = (page - 1) * limit;
+    let arr = this._tasks;
+    
+    if(sortBy && (sortBy in this._tasks[0]) && typeof this._tasks[0][sortBy] === 'number'){
+      arr.sort((a: Task, b: Task) => {
+        return sortOrder === 'desc' ? b[sortBy] - a[sortBy] : a[sortBy] - b[sortBy]; 
+      })
+    }
+    
+    return { tasks: arr.slice(skipTasks, skipTasks + limit), count: arr.length };
+  }
+
+  async seed(tasks: Task[]){
+    this._tasks = tasks;
   }
 
   resetData(){

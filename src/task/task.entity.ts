@@ -12,11 +12,8 @@ export class Task {
   @Column()
   description: string;
 
-  @Column({
-    type: 'enum',
-    enum: TaskPriority
-  })
-  priority: TaskPriority;
+  @Column({ type: 'int' })
+  priority: number;
 
   @Column({
     type: 'enum',

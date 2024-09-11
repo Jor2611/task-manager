@@ -80,6 +80,27 @@ export class RepositoryMock<T extends AppEntities> implements IRepositoryMock {
       getCount: jest.fn().mockImplementation(() => {
         return Promise.resolve(this.collection.length);
       }),
+      //We will add currently only object notation implementation
+      andWhere: jest.fn().mockImplementation((where: ObjectLiteral) => {
+        const collectionName = collectionMap.get(this.entityTarget);
+        const key = Object.keys(where)[0];
+        this.collections[collectionName] = this.collections[collectionName].filter((col: T) => col[key] === where[key]);
+        return this.queryBuilderMock; 
+      }),
+      orderBy: jest.fn().mockImplementation((sort: string, order?: "ASC" | "DESC") => {
+        const collectionName = collectionMap.get(this.entityTarget);
+        const sortOrder = order || 'ASC';
+
+        if(!this.collection.length || !(sort in this.collection[0]) || typeof this.collection[0][sort] !== 'number'){
+          return this.queryBuilderMock;
+        }
+
+        this.collections[collectionName].sort((a: T, b: T) => {
+            return sortOrder === 'DESC' ? b[sort] - a[sort] : a[sort] - b[sort] 
+        })
+
+        return this.queryBuilderMock;
+      })
     } as unknown as SelectQueryBuilder<T>;
     return this;
   }
