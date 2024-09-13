@@ -42,7 +42,7 @@ Tasks can have priorities that are represented by integers from 1 to 3:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/jor2611/task-manager.git
+   git clone https://github.com/Jor2611/task-manager.git
    ```
 
 2. Install dependencies:
