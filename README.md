@@ -224,9 +224,6 @@ All API responses follow a consistent and customized pattern:
 - **msg**: A message code that identifies the result of the operation (useful for i18n or localization).
 - **data**: Any relevant data returned from the operation (if applicable).
 
-
-Here's a section for your `README.md` explaining how to run unit and end-to-end (e2e) tests in your application, including the use of a specific `.env.test` file for testing:
-
 ---
 
 ## Testing
