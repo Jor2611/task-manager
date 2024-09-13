@@ -1,18 +1,18 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { TaskPriority, TaskState } from "./constants/enums";
+import { TaskState } from "./constants/enums";
 
 @Entity()
 export class Task {
   @PrimaryGeneratedColumn()
   id: number;
-//Add min max lengths
-  @Column()
+
+  @Column({ length: 35 })
   title: string;
 
-  @Column()
+  @Column({ length: 150 })//Test
   description: string;
 
-  @Column({ type: 'int' })
+  @Column()
   priority: number;
 
   @Column({
@@ -23,14 +23,23 @@ export class Task {
   state: TaskState;
 
   @Column({ nullable: true })
-  assigned_to: string;
+  assigned_user_id: number;
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamptz', nullable: true })
+  assigned_at: Date;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  progress_started_at: Date;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  done_at: Date;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  cancelled_at: Date;
+
+  @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
 
-  @UpdateDateColumn({ nullable: true })
+  @UpdateDateColumn({ type: 'timestamptz' })
   updated_at: Date;
-
-  @Column({ nullable: true })
-  done_at: Date;  
 }

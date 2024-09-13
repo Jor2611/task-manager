@@ -8,7 +8,7 @@ import { Task } from './task.entity';
 import { TaskState } from './constants/enums';
 
 
-const { title, description,priority, assign_to } = TaskMock
+const { title, description, priority, assign_to } = TaskMock
 describe('TaskController', () => {
   let controller: TaskController;
   let service: TaskService;
@@ -55,7 +55,7 @@ describe('TaskController', () => {
       title,
       description,
       priority,
-      assigned_to: null
+      assigned_user_id: null
     });
   });
 
@@ -71,7 +71,7 @@ describe('TaskController', () => {
       title,
       description,
       priority,
-      assigned_to: assign_to
+      assigned_user_id: assign_to
     });
   });
 
@@ -91,7 +91,7 @@ describe('TaskController', () => {
       title,
       description,
       priority,
-      assigned_to: assign_to
+      assigned_user_id: assign_to
     });
   });
 
@@ -167,7 +167,7 @@ describe('TaskController', () => {
     const page = 1;
     const limit = 10;
     const priority = 2;
-    const owner = 'John Doe'
+    const owner = 25
     const state = TaskState.DONE;
     const tasks = generateTasks({ length: 15, priority, owner, state })
     await serviceMock.seed(tasks);
@@ -308,7 +308,7 @@ describe('TaskController', () => {
     const priority = 2;
     const sortBy = 'id';
     const sortOrder = 'asc';
-    const owner = 'John Doe'
+    const owner = 25
     const state = TaskState.DONE;
     const tasks = generateTasks({ length: 15, priority, owner, state })
     await serviceMock.seed(tasks);
@@ -331,7 +331,7 @@ describe('TaskController', () => {
     const priority = 2;
     const sortBy = 'id';
     const sortOrder = 'desc';
-    const owner = 'John Doe'
+    const owner = 25
     const state = TaskState.DONE;
     const tasks = generateTasks({ length: 15, priority, owner, state })
     await serviceMock.seed(tasks);
@@ -345,4 +345,120 @@ describe('TaskController', () => {
     expect(result.data[0].id).toBeGreaterThanOrEqual(result.data[9].id);
     expect(result.totalCount).toEqual(15);
   })
+
+  it('should update a task', async () => {
+    const spyOnUpdate = jest.spyOn(service, 'update');
+    const createTaskDto = { title, description, priority };
+    const { data: createdTask } = await controller.create(createTaskDto);
+    
+    const updateTaskDto = { 
+      title: 'Updated Title', 
+      description: 'Updated Description', 
+      priority: 2 
+    };
+    
+    const result = await controller.update({ id: createdTask.id }, updateTaskDto);
+
+    expect(spyOnUpdate).toHaveBeenCalledWith(createdTask.id, updateTaskDto);
+    expect(result.msg).toEqual('TASK_UPDATED');
+    expect(result.data).toBeDefined();
+    expect(result.data).toMatchObject({
+      id: createdTask.id,
+      ...updateTaskDto
+    });
+  });
+
+  it('should update task state', async () => {
+    const spyOnUpdate = jest.spyOn(service, 'update');
+    const createTaskDto = { title, description, priority };
+    const { data: createdTask } = await controller.create(createTaskDto);
+    
+    const updateTaskDto = { state: TaskState.IN_PROGRESS };
+    
+    const result = await controller.update({ id: createdTask.id }, updateTaskDto);
+
+    expect(spyOnUpdate).toHaveBeenCalledWith(createdTask.id, updateTaskDto);
+    expect(result.msg).toEqual('TASK_UPDATED');
+    expect(result.data).toBeDefined();
+    expect(result.data.state).toEqual(TaskState.IN_PROGRESS);
+  });
+
+  it('should update task assignment', async () => {
+    const spyOnUpdate = jest.spyOn(service, 'update');
+    const createTaskDto = { title, description, priority };
+    const { data: createdTask } = await controller.create(createTaskDto);
+    
+    const newAssignee = 2;
+    const updateTaskDto = { assigned_user_id: newAssignee };
+    
+    const result = await controller.update({ id: createdTask.id }, updateTaskDto);
+
+    expect(spyOnUpdate).toHaveBeenCalledWith(createdTask.id, updateTaskDto);
+    expect(result.msg).toEqual('TASK_UPDATED');
+    expect(result.data).toBeDefined();
+    expect(result.data.assigned_user_id).toEqual(newAssignee);
+  });
+
+  it('should remove a task', async () => {
+    const spyOnRemove = jest.spyOn(service, 'remove');
+    const createTaskDto = { title, description, priority };
+    const { data: createdTask } = await controller.create(createTaskDto);
+    
+    const result = await controller.remove({ id: createdTask.id });
+
+    expect(spyOnRemove).toHaveBeenCalledWith(createdTask.id);
+    expect(result.msg).toEqual('TASK_DELETED');
+    expect(result.data).toBeDefined();
+    expect(result.data.id).toEqual(createdTask.id);
+  });
+
+  it('should throw NotFoundException when removing non-existent task', async () => {
+    const spyOnRemove = jest.spyOn(service, 'remove');
+    const nonExistentId = 9999;
+
+    await expect(controller.remove({ id: nonExistentId })).rejects.toThrow(NotFoundException);
+    expect(spyOnRemove).toHaveBeenCalledWith(nonExistentId);
+  });
+
+  it('should generate a report', async () => {
+    const spyOnGenerateReport = jest.spyOn(service, 'generateReport');
+    const generateReportDto = { user_id: 1, period_from: '2023-01-01', period_to: '2023-12-31' };
+    
+    const result = await controller.generateReport(generateReportDto);
+
+    expect(spyOnGenerateReport).toHaveBeenCalledWith(generateReportDto);
+    expect(result.msg).toEqual('REPORT_GENERATED');
+    expect(result.data).toBeDefined();
+  });
+
+  it('should generate a report with automatically generated period parameters', async () => {
+    const spyOnGenerateReport = jest.spyOn(service, 'generateReport');
+    const generateReportDto = { period_from: new Date(0).toDateString(), period_to: new Date(0).toDateString() };
+    
+    const result = await controller.generateReport(generateReportDto);
+
+    expect(spyOnGenerateReport).toHaveBeenCalled();
+    expect(result.msg).toEqual('REPORT_GENERATED');
+    expect(result.data).toBeDefined();
+
+    const calledWith = spyOnGenerateReport.mock.calls[0][0];
+    expect(calledWith.period_from).toEqual(generateReportDto.period_from);
+    expect(calledWith.period_to).toEqual(generateReportDto.period_to);
+    expect(new Date(calledWith.period_to)).toBeInstanceOf(Date);
+  });
+
+  it('should generate a report with user_id', async () => {
+    const spyOnGenerateReport = jest.spyOn(service, 'generateReport');
+    const generateReportDto = { user_id: 123, period_from: '2023-01-01', period_to: '2023-12-31' };
+    
+    await controller.generateReport(generateReportDto);
+
+    expect(spyOnGenerateReport).toHaveBeenCalledWith(generateReportDto);
+    expect(spyOnGenerateReport).toHaveBeenCalledWith(expect.objectContaining({
+      user_id: 123,
+      period_from: '2023-01-01',
+      period_to: '2023-12-31'
+    }));
+  });
+
 });

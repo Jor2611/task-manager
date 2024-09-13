@@ -1,9 +1,13 @@
-import { IsString, IsOptional, IsInt, Min, Max, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsInt, Min, Max, IsNumber, MinLength, MaxLength } from 'class-validator';
 
-export class CreateTaskDto {
+export class CreateTaskDto {  
+  @MinLength(2)
+  @MaxLength(35)
   @IsString()
   title: string;
 
+  @MinLength(10)
+  @MaxLength(150)
   @IsString()
   description: string;
 
@@ -12,7 +16,7 @@ export class CreateTaskDto {
   @IsInt()
   priority: number;
 
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  assign_to?: string;
+  assign_to?: number;
 }

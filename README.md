@@ -1,73 +1,251 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Task Manager Application
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This is a **Task Manager** application built with **NestJS** and **PostgreSQL**, designed to manage tasks efficiently with core features like task creation, updating, filtering, sorting, pagination, and reporting.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **CRUD Operations**: Create, Read, Update, and Delete tasks.
+- **Task Listing**: List tasks with support for filtering, sorting, and pagination.
+- **Report Generation**: Generate reports by:
+  - Period (start and end date)
+  - User (via user_id)
+- **Task States**: 
+  - **TODO**: Initial state when the task is created.
+  - **IN_PROGRESS**: The next state when a task is assigned to a user.
+  - **DONE**: Final state when the task is completed.
+  - **CANCELLED**: Final state when the task is canceled.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Task Lifecycle
+
+1. **TODO**: The initial state when the task is created.
+   - A task can move from `TODO` to `IN_PROGRESS` only when a user is assigned to it.
+   - No other transitions are allowed from `TODO` except to `IN_PROGRESS`.
+   
+2. **IN_PROGRESS**: 
+   - From `IN_PROGRESS`, the task can be switched to either:
+     - **DONE** (when the task is completed).
+     - **CANCELLED** (if the task is canceled).
+   - It is not possible to move back to `TODO` once the task is in progress.
+
+3. **DONE** and **CANCELLED**: 
+   - These are **final states**, meaning the task can no longer change its state once it is marked as done or canceled.
+   - Only other attributes of the task (e.g., title, description, priority) can be updated after reaching these states.
+
+## Task Priorities
+
+Tasks can have priorities that are represented by integers from 1 to 3:
+- **1**: Low Priority
+- **2**: Medium Priority
+- **3**: High Priority
 
 ## Installation
 
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/jor2611/task-manager.git
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up your PostgreSQL database and configure the environment variables in `.env.development` and `.env.test` files:
+   ```bash
+    PORT=[APP_PORT]
+    PG_HOST=[DB_HOST]
+    PG_PORT=[PG_PORT]
+    PG_DATABASE=[database_name]
+    PG_USERNAME=[username]
+    PG_PASSWORD=[password]
+    ALLOWED_ORIGINS=* 
+   ```
+   Note: there must be 2 envs for development and test, with different database_names at least!
+   
+4. Build app
+     ```bash
+   npm run build
+   ```
+5. Run database migrations:
+   ```bash
+   npm run typeorm:dev migration:run -- -d ./src/db.dataSource.ts 
+   ```
+
+6. Start the application:
+   ```bash
+   npm run start:dev
+   ```
+
+## Usage
+
+- Access the API at: `http://localhost:${PROVIDED_PORT}`
+- Use the following routes to manage tasks and generate reports.
+
+# Task API Documentation
+
+## Base URL
+`/task`
+
+### 1. List Tasks
+- **Method**: `GET`
+- **Path**: `/task`
+- **Query Parameters**:
+  - `page` (optional, integer, default: 1): The page number for pagination.
+  - `limit` (optional, integer, default: 10): The number of tasks to return per page.
+  - `priority` (optional, integer, range: 1-3): Filter tasks by priority.
+  - `owner` (optional, integer): Filter tasks by owner ID.
+  - `state` (optional, enum: TaskState): Filter tasks by state (e.g., TODO, IN_PROGRESS, DONE).
+  - `sortBy` (optional, string): Sort tasks by 'id' or 'priority'.
+  - `sortOrder` (optional, string): Sort order ('asc' or 'desc').
+
+- **Response**:
+  - **200 OK**
+    - **Headers**:
+      - `X-Total-Count`: Total number of tasks available.
+    ```json
+    {
+      "msg": "TASKS_FETCHED",
+      "data": [ /* Array of Task objects */ ]
+    }
+    ```
+
+### 2. Read Task
+- **Method**: `GET`
+- **Path**: `/task/:id`
+- **Path Parameters**:
+  - `id` (integer): The ID of the task to retrieve.
+
+- **Response**:
+  - **200 OK**
+    ```json
+    {
+      "msg": "TASK_FETCHED",
+      "data": { /* Task object */ }
+    }
+    ```
+
+### 3. Create Task
+- **Method**: `POST`
+- **Path**: `/task`
+- **Request Body**:
+  ```json
+  {
+    "title": "string (min: 2, max: 35)",
+    "description": "string (min: 10, max: 150)",
+    "priority": "integer (1-3)",
+    "assign_to": "integer (optional)"
+  }
+  ```
+
+- **Response**:
+  - **201 Created**
+    ```json
+    {
+      "msg": "TASK_CREATED",
+      "data": { /* Created Task object */ }
+    }
+    ```
+
+### 4. Generate Report
+- **Method**: `POST`
+- **Path**: `/task/report`
+- **Request Body**:
+  ```json
+  {
+    "user_id": "integer (optional)",
+    "period_from": "string (ISO date)",
+    "period_to": "string (ISO date)"
+  }
+  ```
+
+- **Response**:
+  - **200 OK**
+    ```json
+    {
+      "msg": "REPORT_GENERATED",
+      "data": { /* Report data */ }
+    }
+    ```
+
+### 5. Update Task
+- **Method**: `PATCH`
+- **Path**: `/task/:id`
+- **Path Parameters**:
+  - `id` (integer): The ID of the task to update.
+
+- **Request Body**:
+  ```json
+  {
+    "title": "string (optional)",
+    "description": "string (optional)",
+    "priority": "integer (1-3, optional)",
+    "assigned_user_id": "integer (optional)",
+    "state": "TaskState (optional)"
+  }
+  ```
+
+- **Response**:
+  - **200 OK**
+    ```json
+    {
+      "msg": "TASK_UPDATED",
+      "data": { /* Updated Task object */ }
+    }
+    ```
+
+### 6. Delete Task
+- **Method**: `DELETE`
+- **Path**: `/task/:id`
+- **Path Parameters**:
+  - `id` (integer): The ID of the task to delete.
+
+- **Response**:
+  - **200 OK** : by convention must be 204 no-content but for the response consistency 200 OK is ok.
+    ```json
+    {
+      "msg": "TASK_DELETED",
+      "data": {
+        "id": number
+      }
+    }
+    ```
+    
+## Custom API Response
+
+All API responses follow a consistent and customized pattern:
+```json
+{
+  "success": boolean,
+  "msg": "MSG_CODE",
+  "data": "if there is any data"
+}
+```
+- **success**: Indicates whether the operation was successful.
+- **msg**: A message code that identifies the result of the operation (useful for i18n or localization).
+- **data**: Any relevant data returned from the operation (if applicable).
+
+
+Here's a section for your `README.md` explaining how to run unit and end-to-end (e2e) tests in your application, including the use of a specific `.env.test` file for testing:
+
+---
+
+## Testing
+
+The project includes both **unit tests** and **end-to-end (e2e) tests** to ensure code quality and functionality. To run the tests, follow the instructions below.
+
+### Unit Tests
+
 ```bash
-$ npm install
+npm run test:watch
 ```
 
-## Running the app
+### End-to-End (e2e) Tests
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run test:e2e
 ```
 
-## Test
+Make sure that the `.env.test` file is properly set up before running tests, as it is crucial for configuring the test environment.
 
-```bash
-# unit tests
-$ npm run test
 
-# e2e tests
-$ npm run test:e2e
 
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).

@@ -22,9 +22,10 @@ export class ListTasksDto {
   @IsOptional()
   priority?: number;
 
-  @IsString()
+  @IsInt()
+  @Type(() => Number)
   @IsOptional()
-  owner?: string;
+  owner?: number;
 
   @IsEnum(TaskState)
   @IsOptional()

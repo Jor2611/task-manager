@@ -4,7 +4,7 @@ export interface ICreateTask {
   title: string;
   description: string;
   priority: number;
-  assign_to?: string;
+  assign_to?: number;
 }
 
 export interface ITaskFilter {
@@ -12,7 +12,22 @@ export interface ITaskFilter {
   limit: number;
   state?: TaskState;
   priority?: number;
-  owner?: string;
+  owner?: number;
   sortBy?: 'id' | 'priority';
   sortOrder?: 'asc' | 'desc';
+}
+
+export interface IUpdateTask {
+  title?: string;
+  description?: string;
+  priority?: number;
+  assigned_user_id?: number;
+  state?: TaskState;
+}
+
+
+export interface IGenerateReport {
+  user_id?: number;
+  period_from?: string;
+  period_to?: string;
 }
