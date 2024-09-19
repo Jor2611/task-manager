@@ -71,7 +71,7 @@ Tasks can have priorities that are represented by integers from 1 to 3:
    PG_PASSWORD=postgres_test_password
    ALLOWED_ORIGINS=* 
    ```
-   Note: These are the environment configurations to work with Docker Compose. If you're not using Docker, you may need to adjust these settings according to your local PostgreSQL setup.
+   Note: These are the environment configurations to work with Docker Compose. If you're not using Docker Compose, you may need to adjust these settings according to your local PostgreSQL setup.
 4. Build app
      ```bash
    npm run build
