@@ -51,27 +51,43 @@ Tasks can have priorities that are represented by integers from 1 to 3:
    ```
 
 3. Set up your PostgreSQL database and configure the environment variables in `.env.development` and `.env.test` files:
-   ```bash
-    PORT=[APP_PORT]
-    PG_HOST=[DB_HOST]
-    PG_PORT=[PG_PORT]
-    PG_DATABASE=[database_name]
-    PG_USERNAME=[username]
-    PG_PASSWORD=[password]
-    ALLOWED_ORIGINS=* 
+  `.env.development`
    ```
-   Note: there must be 2 envs for development and test, with different database_names at least!
-   
+   PORT=[APP_PORT]
+   PG_HOST=localhost
+   PG_PORT=5433
+   PG_DATABASE=task_manager_dev
+   PG_USERNAME=postgres_dev_user
+   PG_PASSWORD=postgres_dev_password
+   ALLOWED_ORIGINS=* 
+   ```
+   `.env.test`
+   ```
+   PORT=[APP_PORT]
+   PG_HOST=localhost
+   PG_PORT=5434
+   PG_DATABASE=task_manager_test
+   PG_USERNAME=postgres_test_user
+   PG_PASSWORD=postgres_test_password
+   ALLOWED_ORIGINS=* 
+   ```
+   Note: These are the environment configurations to work with Docker Compose. If you're not using Docker, you may need to adjust these settings according to your local PostgreSQL setup.
 4. Build app
      ```bash
    npm run build
    ```
-5. Run database migrations:
+5. Run Docker Compose to set up the development and test databases:
+   ```bash
+   docker-compose up
+   ```
+   This command will start PostgreSQL containers for both development and test environments.
+
+6. Run database migrations:
    ```bash
    npm run typeorm:dev migration:run -- -d ./src/db.dataSource.ts 
    ```
-
-6. Start the application:
+   Note: This command should be executed only once. For the test environment, migrations will run automatically when you run tests.
+7. Start the application:
    ```bash
    npm run start:dev
    ```
@@ -245,4 +261,11 @@ npm run test:e2e
 Make sure that the `.env.test` file is properly set up before running tests, as it is crucial for configuring the test environment.
 
 
+### Cleanup Docker Compose
+
+After you're done with development or testing, you can clean up the Docker containers and volumes using the following command:
+
+```bash
+docker-compose down -v
+```
 

@@ -16,7 +16,7 @@ switch(process.env.NODE_ENV){
       password: process.env.PG_PASSWORD,
       migrations: [join(__dirname, '..', 'migrations/*.js')],
       entities: [join(__dirname, '..', '**/*.entity.js')],
-      synchronize: true,
+      synchronize: false,
       migrationsRun: false
     };
     break;
@@ -26,7 +26,7 @@ switch(process.env.NODE_ENV){
       type: 'postgres',
       host: process.env.PG_HOST,
       port: +process.env.PG_PORT,
-      database: process.env.PG_TEST_DATABASE,
+      database: process.env.PG_DATABASE,
       username: process.env.PG_USERNAME,
       password: process.env.PG_PASSWORD,
       migrations: [join(__dirname, '..', 'migrations/*.js')],

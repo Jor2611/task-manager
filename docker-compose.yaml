@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  postgres_dev:
+    image: postgres:14-alpine
+    ports:
+      - 5433:5432
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres_dev_password
+      - POSTGRES_USER=postgres_dev_user
+      - POSTGRES_DB=task_manager_dev
+
+  postgres_test:
+    image: postgres:14-alpine
+    ports:
+      - 5434:5432
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres_test_password
+      - POSTGRES_USER=postgres_test_user
+      - POSTGRES_DB=task_manager_test
+
+volumes:
+  postgres_dev_data:
+  postgres_test_data:
